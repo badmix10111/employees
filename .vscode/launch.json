@@ -1,0 +1,58 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "employees",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "employees (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "employees (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
+// {
+//     "version": "0.2.0",
+//     "configurations": [
+
+//       {
+//         "name": "Flutter Widget Tests",
+//         "request": "launch",
+//         "type": "dart",
+//         "program": "test/",
+//         "args": [
+//           "--no-sound-null-safety"
+//         ]
+//       },
+//       {
+//         "name": "employees",
+//         "request": "launch",
+//         "type": "dart"
+//       },
+//       {
+//         "name": "employees (profile mode)",
+//         "request": "launch",
+//         "type": "dart",
+//         "flutterMode": "profile"
+//       },
+//       {
+//         "name": "employees (release mode)",
+//         "request": "launch",
+//         "type": "dart",
+//         "flutterMode": "release"
+//       }
+//     ]
+//   }
+  
