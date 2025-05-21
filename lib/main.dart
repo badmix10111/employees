@@ -1,63 +1,63 @@
-// Importing necessary packages and files
-import 'package:employees/View/usersDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:employees/Helper/locator.dart';
-
+import 'package:restart_app/restart_app.dart';
 import 'package:go_router/go_router.dart';
 
-import 'Repository/usersDetailsRepo.dart';
-import 'View/failedPage.dart';
-import 'View/listOfUsers.dart';
+import 'package:employees/Helper/locator.dart';
+import 'package:employees/Repository/usersDetailsRepo.dart';
+import 'package:employees/View/listOfUsers.dart';
+import 'package:employees/View/usersDetails.dart';
+import 'package:employees/View/failedPage.dart';
 
 void main() async {
+  // 1) Initialize Flutter bindings in this zone
   WidgetsFlutterBinding.ensureInitialized();
 
-  //  late GoRouter goRouter; // Declare goRouter as a global variable
+  // 2) If any uncaught Flutter error happens, restart the app
+  FlutterError.onError = (details) {
+    Restart.restartApp();
+  };
 
-  // Custom error widget for handling errors
-  ErrorWidget.builder =
-      (FlutterErrorDetails details) => SomethingWentWrongScreen();
-
-  // Initializing dependencies
+  // 3) Set up dependency injection (get_it)
   setup();
 
-  // Setting preferred device orientations
+  // 4) Lock orientation (flutter/services)
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
+  // 5) Finally run the app
   runApp(MyApp());
+}
+
+class AppRoutes {
+  static const employees = '/employees';
+  static const detail = '/detail/:userId';
 }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  // Creating an instance of GoRouter
-  final goRouter = GoRouter(
+  late final GoRouter _router = GoRouter(
+    initialLocation: AppRoutes.employees,
+    // On bad route or build error, show our fallback screen
+    errorBuilder: (_, __) => const SomethingWentWrongScreen(),
     routes: [
       GoRoute(
-        path: '/',
-        pageBuilder: (context, state) =>
-            const MaterialPage(child: MyHomePage(title: 'Employees')),
+        path: AppRoutes.employees,
+        builder: (_, __) => const ListOfUsersPage(),
       ),
       GoRoute(
-        path: '/detail/:userId',
-        pageBuilder: (context, state) {
-          final userId = state.params['userId'];
-
-          // Creating a MaterialPage with the DetailScreen widget
-          return MaterialPage(
-            child: DetailScreen(
-              userId: userId!,
-              usersDetailsRepo:
-                  UsersDetailsRepo(), // Provide the necessary UsersDetailsRepo instance
-            ),
+        path: AppRoutes.detail,
+        builder: (ctx, state) {
+          final userId = state.pathParameters['userId']!;
+          return DetailScreen(
+            userId: userId,
+            usersDetailsRepo: UsersDetailsRepo(),
           );
         },
       ),
-      // Other routes
     ],
   );
 
@@ -65,11 +65,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Employees',
-
-      // Configuring the routerDelegate and routeInformationParser for MaterialApp
-      routerDelegate: goRouter.routerDelegate,
-      routeInformationParser: goRouter.routeInformationParser,
+      title: 'Employee Dashboard',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        brightness: Brightness.light,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      routerDelegate: _router.routerDelegate,
+      routeInformationParser: _router.routeInformationParser,
+      routeInformationProvider: _router.routeInformationProvider,
     );
   }
 }

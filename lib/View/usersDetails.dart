@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:employees/Repository/usersDetailsRepo.dart';
 import 'package:employees/Model/usersDetailsModel.dart';
+import 'package:go_router/go_router.dart';
 
 class DetailScreen extends StatefulWidget {
   final String userId;
@@ -90,8 +90,7 @@ class _DetailScreenState extends State<DetailScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            GoRouter.of(context).go(
-                '/'); // Navigate back one page when the back button is pressed
+            context.pop();
           },
         ),
         actions: [

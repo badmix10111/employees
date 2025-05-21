@@ -1,156 +1,277 @@
-import 'dart:async';
+// // lib/View/listOfUsers.dart
+
+// import 'package:flutter/material.dart';
+// import 'package:get_it/get_it.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:restart_app/restart_app.dart';
+
+// import 'package:employees/Model/listOfUsersModel.dart';
+// import 'package:employees/Repository/usersRepo.dart';
+
+// class ListOfUsersPage extends StatefulWidget {
+//   const ListOfUsersPage({Key? key}) : super(key: key);
+
+//   @override
+//   State<ListOfUsersPage> createState() => _ListOfUsersPageState();
+// }
+
+// class _ListOfUsersPageState extends State<ListOfUsersPage> {
+//   Future<ListOfUsers>? _usersFuture;
+//   bool _loading = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadUsers();
+//   }
+
+//   Future<void> _loadUsers() async {
+//     setState(() => _loading = true);
+
+//     try {
+//       final repo = GetIt.I.get<UsersRepo>();
+//       final list = await repo.getUsers();
+//       setState(() {
+//         _usersFuture = Future.value(list);
+//       });
+//     } catch (e) {
+//       setState(() => _usersFuture = Future.error(e));
+//     } finally {
+//       setState(() => _loading = false);
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+//       appBar: AppBar(
+//         title: const Text('Users'),
+//         centerTitle: true,
+//         actions: [
+//           IconButton(
+//             icon: const Icon(Icons.refresh),
+//             onPressed: _loading ? null : _loadUsers,
+//           ),
+//         ],
+//       ),
+//       body: _loading && _usersFuture == null
+//           ? const Center(child: CircularProgressIndicator())
+//           : FutureBuilder<ListOfUsers>(
+//               future: _usersFuture,
+//               builder: (ctx, snap) {
+//                 if (snap.connectionState == ConnectionState.waiting) {
+//                   return const Center(child: CircularProgressIndicator());
+//                 }
+//                 if (snap.hasError) {
+//                   return _buildErrorUI(snap.error.toString());
+//                 }
+
+//                 final users = snap.data?.data ?? [];
+//                 if (users.isEmpty) {
+//                   return const Center(child: Text('No data available.'));
+//                 }
+
+//                 return ListView.builder(
+//                   itemCount: users.length,
+//                   itemBuilder: (_, i) {
+//                     final user = users[i];
+//                     final ageStr = user.employeeAge?.toString() ?? '';
+//                     final salaryStr = user.employeeSalary?.toString() ?? '';
+
+//                     return Card(
+//                       elevation: 4,
+//                       margin: const EdgeInsets.symmetric(
+//                           horizontal: 8, vertical: 6),
+//                       child: ListTile(
+//                         onTap: () => context.push('/detail/${user.id}'),
+//                         title: Text(
+//                           'Name: ${user.employeeName ?? 'N/A'}',
+//                           style: const TextStyle(
+//                             fontSize: 16,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                         subtitle: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             if (ageStr.isNotEmpty) Text('Age: $ageStr'),
+//                             if (salaryStr.isNotEmpty)
+//                               Text('Salary: $salaryStr'),
+//                           ],
+//                         ),
+//                         trailing: IconButton(
+//                           icon: const Icon(Icons.remove_red_eye),
+//                           onPressed: () => context.push('/detail/${user.id}'),
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 );
+//               },
+//             ),
+//     );
+//   }
+
+//   Widget _buildErrorUI(String errorMsg) {
+//     return Center(
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Text(
+//             'Error: $errorMsg',
+//             textAlign: TextAlign.center,
+//             style: const TextStyle(color: Colors.red),
+//           ),
+//           const SizedBox(height: 8),
+//           ElevatedButton(
+//             onPressed: _loadUsers,
+//             child: const Text('Retry'),
+//           ),
+//           const SizedBox(height: 4),
+//           ElevatedButton(
+//             onPressed: Restart.restartApp,
+//             child: const Text('Restart App'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restart_app/restart_app.dart';
+
 import 'package:employees/Model/listOfUsersModel.dart';
 import 'package:employees/Repository/usersRepo.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class ListOfUsersPage extends StatefulWidget {
+  const ListOfUsersPage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<ListOfUsersPage> createState() => _ListOfUsersPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  Future<ListOfUsers>? _usersListFuture; // Future that holds the list of users
-  bool _isLoading = false; // Flag to track if data is being loaded
+class _ListOfUsersPageState extends State<ListOfUsersPage> {
+  Future<ListOfUsers>? _usersFuture;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchUsersList(); // Fetch the list of users when the page is initialized
+    _loadUsers();
   }
 
-  Future<void> _fetchUsersList() async {
-    setState(() {
-      _isLoading = true; // Set isLoading flag to true when fetching data
-    });
+  Future<void> _loadUsers() async {
+    setState(() => _loading = true);
 
     try {
-      final usersRepo =
-          GetIt.I.get<UsersRepo>(); // Get the UsersRepo instance using GetIt
-      final listOfUsers = await usersRepo
-          .getUsers(); // Fetch the list of users from the repository
-
+      final repo = GetIt.I.get<UsersRepo>();
+      final list = await repo.getUsers();
       setState(() {
-        _usersListFuture = Future.value(
-            listOfUsers); // Set the fetched list of users to the Future
+        _usersFuture = Future.value(list);
       });
-    } catch (error) {
-      setState(() {
-        _usersListFuture = Future.error(
-            error.toString()); // Set an error message if fetching fails
-      });
+    } catch (e) {
+      setState(() => _usersFuture = Future.error(e));
     } finally {
-      setState(() {
-        _isLoading =
-            false; // Set isLoading flag to false when fetching is done (success or failure)
-      });
+      setState(() => _loading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Users'),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _isLoading
-                ? null
-                : _fetchUsersList, // Disable refresh button when data is loading
+            onPressed: _loading ? null : _loadUsers,
           ),
         ],
       ),
-      body: FutureBuilder<ListOfUsers?>(
-        future:
-            _usersListFuture, // The Future to build the UI based on its state
-        builder: (BuildContext context, AsyncSnapshot<ListOfUsers?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child:
-                    CircularProgressIndicator()); // Show a loading indicator while waiting for data
-          }
-          if (snapshot.connectionState == ConnectionState.none) {
-            return const Center(
-                child:
-                    CircularProgressIndicator()); // Show a loading indicator when there is no connection state
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                  "${snapshot.error}, try hitting refresh"), // Show an error message if there is an error in fetching data
-            );
-          } else if (snapshot.hasData) {
-            final usersList =
-                snapshot.data!; // Extract the ListOfUsers from the snapshot
-            return ListView.builder(
-              itemCount: usersList.data!.length, // Number of items in the list
-              itemBuilder: (BuildContext context, int index) {
-                final user =
-                    usersList.data![index]; // Get a user at the current index
-                return buildUserCard(
-                    user); // Build a user card widget for the user
+      body: _loading && _usersFuture == null
+          ? const Center(child: CircularProgressIndicator())
+          : FutureBuilder<ListOfUsers>(
+              future: _usersFuture,
+              builder: (ctx, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snap.hasError) {
+                  return _buildErrorUI(snap.error.toString());
+                }
+
+                final users = snap.data?.data ?? [];
+                if (users.isEmpty) {
+                  return const Center(child: Text('No data available.'));
+                }
+
+                return ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (_, i) {
+                    final user = users[i];
+                    final ageStr = user.employeeAge?.toString() ?? '';
+                    final salaryStr = user.employeeSalary?.toString() ?? '';
+
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
+                      child: ListTile(
+                        onTap: () => context.push('/detail/${user.id}'),
+                        title: Text(
+                          'Name: ${user.employeeName ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (ageStr.isNotEmpty) Text('Age: $ageStr'),
+                            if (salaryStr.isNotEmpty)
+                              Text('Salary: $salaryStr'),
+                          ],
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.remove_red_eye),
+                          onPressed: () => context.push('/detail/${user.id}'),
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
-            );
-          } else {
-            return const Center(
-                child: Text(
-                    "No data available.")); // Show a message when there is no data
-          }
-        },
-      ),
+            ),
     );
   }
 
-  Widget buildUserCard(user) {
-    return Card(
-      elevation: 10,
-      margin: const EdgeInsets.all(8),
-      child: ListTile(
-        onTap: () {
-          GoRouter.of(context).go(
-              '/detail/${user.id}'); // Handle tap event to navigate to user detail page
-        },
-        title: Text(
-          "Name: ${user.employeeName ?? 'N/A'}",
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+  Widget _buildErrorUI(String errorMsg) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Error: $errorMsg',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red),
           ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (user.employeeAge != null && user.employeeAge != "")
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    "Employee Age: ${user.employeeAge}",
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              if (user.employeeSalary != null && user.employeeSalary != "")
-                Text(
-                  "Employee Salary: ${user.employeeSalary}",
-                  style: const TextStyle(fontSize: 14),
-                ),
-            ],
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _loadUsers,
+            child: const Text('Retry'),
           ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.remove_red_eye),
-          onPressed: () {
-            GoRouter.of(context).go(
-                '/detail/${user.id}'); // Handle button press to navigate to user detail page
-          },
-        ),
+          const SizedBox(height: 4),
+          ElevatedButton(
+            onPressed: Restart.restartApp,
+            child: const Text('Restart App'),
+          ),
+        ],
       ),
     );
   }
